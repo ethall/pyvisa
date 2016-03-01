@@ -223,6 +223,12 @@ class VisaShell(Cmd):
             print('There are no resources in use. Use the command "open".')
             return
 
+        if not args:
+            writer = WriteShell(self.current)
+            writer.cmdloop()
+            del writer
+            return
+
         try:
             self.current.write(args)
         except Exception as e:
@@ -319,6 +325,28 @@ class VisaShell(Cmd):
     def do_EOF(self, arg):
         """.
         """
+        return True
+
+
+class WriteShell(VisaShell):
+
+    intro = 'Entering write mode.\n' \
+            'You can return to open mode using "exit".'
+
+    def __init__(self, current):
+        Cmd.__init__(self)
+        self.current = current
+        self.prompt = '(write) '
+
+    def precmd(self, line):
+        command = line.split(None,1)[0]
+        if 'exit' not in command:
+            return ' '.join(['write', line])
+        else:
+            return line
+
+    def do_exit(self, arg):
+        """Exit write mode."""
         return True
 
 
